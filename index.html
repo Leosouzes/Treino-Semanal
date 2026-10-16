@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Treinos da semana</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#f2f7f7;--card:#fff;--ink:#12262b;--mut:#5d7479;--line:#d9e5e6;--acc:#0b8c7d;--accs:#d9f2ee;--accink:#fff;--warn:#b4412f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1b1e;--card:#162a2e;--ink:#e6f2f2;--mut:#93adb2;--line:#27424712;--line:#294449;--acc:#3fd0bd;--accs:#173c3a;--accink:#06201d;--warn:#ff907e}}
+:root[data-theme="dark"]{--bg:#0e1b1e;--card:#162a2e;--ink:#e6f2f2;--mut:#93adb2;--line:#294449;--acc:#3fd0bd;--accs:#173c3a;--accink:#06201d;--warn:#ff907e}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.45}
+main{max-width:640px;margin:0 auto;padding:20px 16px 90px}
+h1{font-size:30px;line-height:1.1;margin:4px 0 14px;font-weight:800;letter-spacing:-.02em}
+input,textarea,button{font:inherit;color:inherit}
+input{width:100%;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;min-width:0}
+input:focus,button:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.modes{display:flex;gap:4px;background:var(--accs);padding:4px;border-radius:14px;margin-bottom:14px}
+.modes button{flex:1;border:0;background:transparent;padding:10px;border-radius:10px;font-weight:600;cursor:pointer;color:var(--ink)}
+.modes button[aria-pressed="true"]{background:var(--acc);color:var(--accink)}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:14px}
+.day{position:relative;border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 0 12px;text-align:center;font-weight:600;cursor:pointer;font-size:14px}
+.day[aria-pressed="true"]{border-color:var(--acc);background:var(--accs)}
+.day i{position:absolute;left:50%;bottom:4px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--line)}
+.day.on i{background:var(--acc)}
+.day.rest i{background:var(--mut)}
+.panel{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px}
+.panel h2{margin:0 0 10px;font-size:20px}
+.row{display:grid;grid-template-columns:1fr 84px 32px;gap:6px;margin-bottom:6px}
+.row .obs{grid-column:1 / 3}
+.row .x{grid-row:1;grid-column:3}
+.ex{border-bottom:1px dashed var(--line);padding-bottom:8px;margin-bottom:10px}
+.x{border:0;background:transparent;color:var(--warn);font-size:22px;cursor:pointer;line-height:1}
+.btn{border:1.5px solid var(--line);background:var(--card);border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn.p{background:var(--acc);border-color:var(--acc);color:var(--accink)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chk{display:flex;gap:8px;align-items:center;margin:0 0 12px;color:var(--mut)}
+.chk input{width:auto}
+.sum{display:grid;gap:10px}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:14px 16px;break-inside:avoid}
+.card h3{margin:0 0 6px;font-size:18px}
+.card h3 span{color:var(--mut);font-weight:400}
+.card ol{margin:0;padding-left:20px}
+.card li small{display:block;color:var(--mut)}
+.card.r{background:var(--accs)}
+.empty{color:var(--mut);margin:0}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1.5px solid var(--line);display:flex;gap:8px;justify-content:center}
+.bar .btn{flex:1;max-width:200px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.tip{color:var(--mut);font-size:14px;margin-top:18px}
+#sumView h2.t{font-size:22px;margin:0 0 2px}
+#sumView p.s{margin:0 0 12px;color:var(--mut)}
+@media print{.modes,.week,.bar,.tools,#edView,.meta,h1,.tip{display:none!important}#sumView{display:block!important}body{background:#fff;color:#000}.card{border-color:#999}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<h1>Treinos da semana</h1>
+<div class="meta">
+<input id="grupo" placeholder="Para quem? (ex.: Turma das 7h)" aria-label="Para quem">
+<input id="sem" placeholder="Semana (ex.: 19 a 25/10)" aria-label="Semana">
+</div>
+<div class="modes">
+<button id="mE" aria-pressed="true">Montar</button>
+<button id="mS" aria-pressed="false">Resumo</button>
+</div>
+<div id="edView">
+<div class="week" id="week"></div>
+<div class="panel" id="panel"></div>
+</div>
+<div id="sumView" hidden></div>
+<p class="tip">Dica: abra esta página no celular e use “Adicionar à tela inicial” para ter o app à mão. Seus treinos ficam salvos neste aparelho.</p>
+</main>
+<div class="bar">
+<button class="btn p" id="bShare">Enviar</button>
+<button class="btn" id="bCopy">Copiar texto</button>
+<button class="btn" id="bPrint">Salvar PDF</button>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+var NOMES=["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"],CURTO=["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"],KEY="treinos-semana-v1";
+var S=load()||novo();
+function novo(){return{grupo:"",sem:"",sel:0,dias:NOMES.map(function(){return{foco:"",rest:false,ex:[{n:"",s:"",o:""}]}})}}
+function load(){try{var v=localStorage.getItem(KEY);return v?JSON.parse(v):null}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},1800)}
+function filled(d){return d.ex.filter(function(e){return e.n.trim()})}
+function renderWeek(){$("week").innerHTML=S.dias.map(function(d,i){var c=d.rest?"rest":filled(d).length?"on":"";return'<button class="day '+c+'" data-d="'+i+'" aria-pressed="'+(i===S.sel)+'">'+CURTO[i]+'<i></i></button>'}).join("")}
+function renderPanel(){var d=S.dias[S.sel],h='<h2>'+NOMES[S.sel]+'</h2><input data-f="foco" value="'+esc(d.foco)+'" placeholder="Foco do dia (ex.: Pernas e glúteos)" aria-label="Foco do dia" style="margin-bottom:10px">';
+h+='<label class="chk"><input type="checkbox" data-f="rest"'+(d.rest?" checked":"")+'> Dia de descanso</label>';
+if(!d.rest){d.ex.forEach(function(e,i){h+='<div class="ex row" data-i="'+i+'"><input data-k="n" value="'+esc(e.n)+'" placeholder="Exercício" aria-label="Exercício"><input data-k="s" value="'+esc(e.s)+'" placeholder="4x12" aria-label="Séries e repetições"><button class="x" data-del="'+i+'" aria-label="Remover exercício">×</button><input class="obs" data-k="o" value="'+esc(e.o)+'" placeholder="Carga, descanso, observação" aria-label="Observação"></div>'});
+h+='<div class="tools"><button class="btn" id="add">+ Exercício</button><button class="btn" id="dup">Copiar para outro dia</button></div>'}
+$("panel").innerHTML=h}
+function render(){renderWeek();renderPanel();renderSum()}
+function texto(){var L=["*Treinos da semana"+(S.grupo?" — "+S.grupo:"")+"*"];if(S.sem)L.push(S.sem);L.push("");
+S.dias.forEach(function(d,i){var ex=filled(d);if(!ex.length&&!d.rest)return;L.push("*"+NOMES[i]+(d.foco&&!d.rest?" — "+d.foco:"")+"*");
+if(d.rest){L.push("Descanso")}else ex.forEach(function(e,j){L.push((j+1)+". "+e.n.trim()+(e.s?" — "+e.s:"")+(e.o?" ("+e.o+")":""))});L.push("")});
+return L.join("\n").trim()}
+function renderSum(){var h='<h2 class="t">'+esc(S.grupo||"Treinos da semana")+'</h2><p class="s">'+esc(S.sem)+'</p><div class="sum">',any=false;
+S.dias.forEach(function(d,i){var ex=filled(d);if(!ex.length&&!d.rest)return;any=true;
+if(d.rest){h+='<div class="card r"><h3>'+NOMES[i]+' <span>Descanso</span></h3></div>';return}
+h+='<div class="card"><h3>'+NOMES[i]+(d.foco?' <span>'+esc(d.foco)+'</span>':'')+'</h3><ol>'+ex.map(function(e){return'<li>'+esc(e.n)+(e.s?' — <b>'+esc(e.s)+'</b>':'')+(e.o?'<small>'+esc(e.o)+'</small>':'')+'</li>'}).join("")+'</ol></div>'});
+h+='</div>';if(!any)h='<p class="empty">Nenhum treino ainda. Volte em “Montar” e adicione os exercícios de cada dia.</p>';$("sumView").innerHTML=h}
+function mode(s){$("edView").hidden=s;$("sumView").hidden=!s;$("mE").setAttribute("aria-pressed",!s);$("mS").setAttribute("aria-pressed",s);if(s)renderSum()}
+$("mE").onclick=function(){mode(false)};$("mS").onclick=function(){mode(true)};
+$("grupo").value=S.grupo||"";$("sem").value=S.sem||"";
+$("grupo").oninput=function(){S.grupo=this.value;save()};$("sem").oninput=function(){S.sem=this.value;save()};
+$("week").onclick=function(ev){var b=ev.target.closest("[data-d]");if(!b)return;S.sel=+b.dataset.d;save();renderWeek();renderPanel()};
+$("panel").oninput=function(ev){var t=ev.target,d=S.dias[S.sel];if(t.dataset.f==="foco"){d.foco=t.value}else if(t.dataset.k){d.ex[+t.closest("[data-i]").dataset.i][t.dataset.k]=t.value}save();renderWeek()};
+$("panel").onchange=function(ev){if(ev.target.dataset.f==="rest"){S.dias[S.sel].rest=ev.target.checked;save();render()}};
+$("panel").onclick=function(ev){var d=S.dias[S.sel],t=ev.target;
+if(t.id==="add"){d.ex.push({n:"",s:"",o:""});save();renderPanel();var r=$("panel").querySelectorAll(".ex");r[r.length-1].querySelector("input").focus()}
+else if(t.dataset.del!==undefined){d.ex.splice(+t.dataset.del,1);if(!d.ex.length)d.ex.push({n:"",s:"",o:""});save();renderPanel();renderWeek()}
+else if(t.id==="dup"){var n=prompt("Copiar para qual dia? Digite: seg, ter, qua, qui, sex, sab ou dom");if(!n)return;var i=["seg","ter","qua","qui","sex","sab","dom"].indexOf(n.trim().toLowerCase().slice(0,3));if(i<0||i===S.sel){toast("Dia não reconhecido");return}S.dias[i]=JSON.parse(JSON.stringify(d));save();render();toast("Copiado para "+NOMES[i])}};
+function copiar(t){if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t)}return new Promise(function(ok,no){var a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy")?ok():no()}catch(e){no(e)}a.remove()})}
+$("bCopy").onclick=function(){var t=texto();if(!t.replace(/[\s*]/g,"")||t.indexOf("1.")<0&&t.indexOf("Descanso")<0){toast("Adicione exercícios primeiro");return}copiar(t).then(function(){toast("Texto copiado")},function(){toast("Não foi possível copiar")})};
+$("bShare").onclick=function(){var t=texto();if(t.indexOf("1.")<0&&t.indexOf("Descanso")<0){toast("Adicione exercícios primeiro");return}
+if(navigator.share){navigator.share({text:t}).catch(function(){})}else{copiar(t).then(function(){toast("Texto copiado — cole no WhatsApp")},function(){toast("Não foi possível compartilhar")})}};
+$("bPrint").onclick=function(){mode(true);try{window.print()}catch(e){toast("Use o menu do navegador para imprimir")}};
+render();
+</script>
+</body>
+</html>
